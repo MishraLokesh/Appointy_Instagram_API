@@ -32,11 +32,16 @@ POST /users/{id}
 POST api/books/{id}
 ```
 
-### Create new user
-
-````bash
+### Create new Post
+``` bash
 POST /users
-````
+# Request sample
+# {
+# Name: "Lokesh",
+# Email: "user_One@gmail.com",
+# Password: "yoyo"
+# }
+```
 
 ### Create new post
 ```bash
@@ -53,9 +58,9 @@ POST /posts/{id}
 POST /posts
 # Request sample
 # {
-# Name: "Lokesh",
-# Email: "user_One@gmail.com",
-# Password: "yoyo"
+# Caption: "Hehe",
+# ImageURL: "www.image_url.com",
+# Timestamp: "123545680"
 # }
 ```
 
