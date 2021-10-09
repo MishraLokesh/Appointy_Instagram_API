@@ -38,33 +38,39 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// Get single user
-func getUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r) // Gets params
-	// Loop through users and find one with the id from the params
-	for _, item := range users {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
-	}
-	json.NewEncoder(w).Encode(&User{})
-}
-
 // Add new user
 func createUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
-	
-	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
-	
+	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost) //ecnrypting the user password then storing it
 	user.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
 	user.Password = string(bs)
-	fmt.Println(user.Password)
+	// fmt.Println(user.Password)
 	users = append(users, user)
 	json.NewEncoder(w).Encode(user)
+}
+
+// Get single user
+func getUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r) // Gets params
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	// Loop through users and find one with the id from the params
+	for _, item := range users {
+		if item.ID == params["id"] {
+			err := bcrypt.CompareHashAndPassword(bs, []byte(item.Password))
+			if err != nil{
+				fmt.Println("Sorry.. Password doesn't match")
+			} else {
+				json.NewEncoder(w).Encode(item)
+				return
+			}
+		}
+	}
+	json.NewEncoder(w).Encode(&User{})
 }
 
 // Update user
@@ -138,7 +144,7 @@ func main() {
 
 	// Route handles & endpoints
 	r.HandleFunc("/users", getUsers).Methods("GET")
-	r.HandleFunc("/users/{id}", getUser).Methods("GET")
+	r.HandleFunc("/users/{id}", getUser).Methods("POST")
 	r.HandleFunc("/users", createUser).Methods("POST")
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
