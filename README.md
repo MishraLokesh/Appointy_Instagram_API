@@ -1,12 +1,12 @@
 # Appointy_Instagram_API
+
 # Simple GO Lang REST API
 
 > Simple RESTful API to create, read, update and delete books. No database implementation yet
 
 ## Quick Start
 
-
-``` bash
+```bash
 go build
 ./MishraLokesh
 ```
@@ -14,41 +14,54 @@ go build
 ## Endpoints
 
 ### Get All users
-``` bash
+
+```bash
 GET /all_users
 ```
+
 ### Get Single user
-``` bash
+
+```bash
 POST /users/{id}
 pass the password in req body for verification
 ```
 
 ### Delete Book
-``` bash
+
+```bash
 POST api/books/{id}
 ```
 
 ### Create new user
-``` bash
+
+````bash
 POST /users
+````
 
 ### Create new post
 ``` bash
 POST /posts
-```
+````
 
 ### get all posts
-``` bash
+
+```bash
 POST /posts/{id}
 ```
 
 
 # Request sample
+
 # {
-#  Name: "Lokesh",
-#  Email: "user_One@gmail.com",
-#  Password: "yoyo"
+
+# Name: "Lokesh",
+
+# Email: "user_One@gmail.com",
+
+# Password: "yoyo"
+
 # }
+
 ```
 
 
@@ -66,3 +79,4 @@ Lokesh Mishra
 ### License
 
 This project is licensed under the MIT License
+```
