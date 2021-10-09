@@ -1,24 +1,26 @@
 package main
 
 import (
-	"encoding/json"
-	"net/http"
 	"context"
-	"os"
-	"time"
-	"log"
-	"math/rand"
-	"strconv"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // user struct (Model)
 type User struct {
-	ID     string  `json:"id"`
+	ID     primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
+	// ID     primitive.ObjectID  `json:"_id"`
 	Name   string  `json:"name"`
 	Email  string  `json:"email"`
 	Password string `json:"password"`
@@ -26,11 +28,13 @@ type User struct {
 
 // post struct (Model)
 type Post struct {
-	ID     string  `json:"id"`
+	ID     primitive.ObjectID  `json:"_id,omitempty" bson:"_id,omitempty"`
+	userID     primitive.ObjectID  `json:"_id"`
 	Caption   string  `json:"caption"`
 	ImageURL  string  `json:"img"`
 	Timestamp string `json:"timestamp"`
 }
+
 
 // Init users var as a slice User struct
 var users []User
@@ -149,7 +153,6 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 
 
 // Non MongoDB part on Hardcoded Data
-
 // Update user
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -252,7 +255,6 @@ func TestCreateEntry(t *testing.T) {
 
 // Main function
 func main() {
-
 	// Init router
 	r := mux.NewRouter()
 
