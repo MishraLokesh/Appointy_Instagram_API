@@ -157,6 +157,23 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&Post{})
 }
 
+// Pagination middleware is used to extract the next page id from the url query
+func Pagination(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		PageID := r.URL.Query().Get(string(PageIDKey))
+		intPageID := 0
+		var err error
+		if PageID != "" {
+			intPageID, err = strconv.Atoi(PageID)
+			if err != nil {
+				_ = render.Render(w, r, types.ErrInvalidRequest(fmt.Errorf("couldn't read %s: %w", PageIDKey, err)))
+				return
+			}
+		}
+		ctx := context.WithValue(r.Context(), PageIDKey, intPageID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 // Main function
 func main() {
@@ -175,7 +192,7 @@ func main() {
 
 	// Route handles & endpoints
 	r.HandleFunc("/all_users", getAllUsers).Methods("GET")
-	r.HandleFunc("/users/{id}", getUser).Methods("POST")  //using post method here to pass password also in the request body for verification
+	r.HandleFunc("/users/{id}", getSingleUser).Methods("POST")  //using post method here to pass password also in the request body for verification
 	r.HandleFunc("/users", createUser).Methods("POST")
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
