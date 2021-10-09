@@ -18,8 +18,18 @@ type User struct {
 	Password string `json:"password"`
 }
 
+// post struct (Model)
+type Post struct {
+	ID     string  `json:"id"`
+	Caption   string  `json:"caption"`
+	ImageURL  string  `json:"img"`
+	Timestamp string `json:"timestamp"`
+}
+
 // Init users var as a slice User struct
 var users []User
+// Init posts var as a slice Post struct
+var posts []Post
 
 // Get all users
 func getUsers(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +90,31 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(users)
 }
+
+
+// Add new post
+func createPost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var post Post
+	_ = json.NewDecoder(r.Body).Decode(&post)
+	post.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
+	posts = append(posts, post)
+	json.NewEncoder(w).Encode(post)
+}
+
+// Get all posts
+func getPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r) // Gets params
+	// Loop through users and find one with the id from the params
+	for _, item := range users {
+		if item.ID == params["id"] {
+			json.NewEncoder(w).Encode(item)
+		}
+	}
+	json.NewEncoder(w).Encode(&Post{})
+}
+
 
 // Main function
 func main() {
