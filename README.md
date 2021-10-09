@@ -39,18 +39,16 @@ POST /users
 ````
 
 ### Create new post
-``` bash
+```bash
 POST /posts
-````
+```
 
 ### get all posts
-
 ```bash
 POST /posts/{id}
 ```
 
-
-### Create Book
+### Create new Post
 ``` bash
 POST /posts
 # Request sample
@@ -61,13 +59,17 @@ POST /posts
 # }
 ```
 
+### Get all Posts
+``` bash
+POST /posts/{id}
+
+```
 
 ## App Info
 
 ### Author
 
 Lokesh Mishra
-[Traversy Media](http://www.traversymedia.com)
 
 ### Version
 
