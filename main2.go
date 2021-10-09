@@ -37,11 +37,26 @@ var users []User
 // Init posts var as a slice Post struct
 var posts []Post
 
-// Get all users
-func getUsers(w http.ResponseWriter, r *http.Request) {
+// Get all user
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+	var people []User
+
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+	col := client.Database("First_Database").Collection("First Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	cursor, _ := col.Find(ctx, bson.M{})
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var person User
+		cursor.Decode(&person)
+		people = append(people, person)
+	}
+	json.NewEncoder(w).Encode(people)
 }
+
 
 // Add new user
 func createUser(w http.ResponseWriter, r *http.Request) {
@@ -159,7 +174,7 @@ func main() {
 	posts = append(posts, Post{ID: "1", Caption: "Lokesh here", ImageURL: "lokesh_image@gmail.com", Timestamp: "08:07"})
 
 	// Route handles & endpoints
-	r.HandleFunc("/users", getUsers).Methods("GET")
+	r.HandleFunc("/all_users", getAllUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", getUser).Methods("POST")  //using post method here to pass password also in the request body for verification
 	r.HandleFunc("/users", createUser).Methods("POST")
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
