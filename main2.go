@@ -6,8 +6,9 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-
+	"fmt"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // user struct (Model)
@@ -56,7 +57,12 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
+	
+	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+	
 	user.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
+	user.Password = string(bs)
+	fmt.Println(user.Password)
 	users = append(users, user)
 	json.NewEncoder(w).Encode(user)
 }
