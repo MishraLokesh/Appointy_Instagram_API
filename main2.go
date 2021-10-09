@@ -175,6 +175,55 @@ func Pagination(next http.Handler) http.Handler {
 	})
 }
 
+
+func TestGetEntryByID(t *testing.T) {
+
+	req, err := http.NewRequest("GET", "/entry", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	q := req.URL.Query()
+	q.Add("id", "1")
+	req.URL.RawQuery = q.Encode()
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(GetEntryByID)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	// Check the response body is what we expect.
+	expected := `{"id":1,"first_name":"Lokesh","last_name":"Mishra","email_address":"lokesh@gmail.com","phone_number":"999999999"}`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
+func TestCreateEntry(t *testing.T) {
+
+	var jsonStr = []byte(`{"id":4,"first_name":"xyz","last_name":"pqr","email_address":"xyz@pqr.com","phone_number":"1234567890"}`)
+
+	req, err := http.NewRequest("POST", "/entry", bytes.NewBuffer(jsonStr))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(CreateEntry)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	expected := `{"id":4,"first_name":"xyz","last_name":"pqr","email_address":"xyz@pqr.com","phone_number":"1234567890"}`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
 // Main function
 func main() {
 
