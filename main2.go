@@ -10,7 +10,76 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// user struct (Model)
+type User struct {
+	ID     string  `json:"id"`
+	Name   string  `json:"name"`
+	Email  string  `json:"email"`
+	Password string `json:"password"`
+}
 
+// Init users var as a slice User struct
+var users []User
+
+// Get all users
+func getUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
+
+// Get single user
+func getUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r) // Gets params
+	// Loop through users and find one with the id from the params
+	for _, item := range users {
+		if item.ID == params["id"] {
+			json.NewEncoder(w).Encode(item)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&User{})
+}
+
+// Add new user
+func createUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	user.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
+	users = append(users, user)
+	json.NewEncoder(w).Encode(user)
+}
+
+// Update user
+func updateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range users {
+		if item.ID == params["id"] {
+			users = append(users[:index], users[index+1:]...)
+			var user User
+			_ = json.NewDecoder(r.Body).Decode(&user)
+			user.ID = params["id"]
+			users = append(users, user)
+			json.NewEncoder(w).Encode(user)
+			return
+		}
+	}
+}
+
+// Delete user
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, item := range users {
+		if item.ID == params["id"] {
+			users = append(users[:index], users[index+1:]...)
+			break
+		}
+	}
+	json.NewEncoder(w).Encode(users)
+}
 
 // Main function
 func main() {
