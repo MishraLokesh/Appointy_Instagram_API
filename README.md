@@ -43,7 +43,7 @@ POST /users
 POST /posts
 ```
 
-### get all posts
+### Get all posts
 ```bash
 POST /posts/{id}
 ```
