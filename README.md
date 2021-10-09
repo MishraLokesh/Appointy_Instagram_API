@@ -7,58 +7,50 @@
 
 
 ``` bash
-# Install mux router
-go get -u github.com/gorilla/mux
-```
-
-``` bash
 go build
-./go_restapi
+./MishraLokesh
 ```
 
 ## Endpoints
 
-### Get All Books
+### Get All users
 ``` bash
-GET api/books
+GET /all_users
 ```
-### Get Single Book
+### Get Single user
 ``` bash
-GET api/books/{id}
+POST /users/{id}
+pass the password in req body for verification
 ```
 
 ### Delete Book
 ``` bash
-DELETE api/books/{id}
+POST api/books/{id}
 ```
 
-### Create Book
+### Create new user
 ``` bash
-POST api/books
+POST /users
+
+### Create new post
+``` bash
+POST /posts
+```
+
+### get all posts
+``` bash
+POST /posts/{id}
+```
+
 
 # Request sample
 # {
-#   "isbn":"4545454",
-#   "title":"Book Three",
-#   "author":{"firstname":"Harry",  "lastname":"White"}
+#  Name: "Lokesh",
+#  Email: "user_One@gmail.com",
+#  Password: "yoyo"
 # }
 ```
 
-### Update Book
-``` bash
-PUT api/books/{id}
-
-# Request sample
-# {
-#   "isbn":"4545454",
-#   "title":"Updated Title",
-#   "author":{"firstname":"Harry",  "lastname":"White"}
-# }
-
-```
-
-
-```
 
 ## App Info
 
