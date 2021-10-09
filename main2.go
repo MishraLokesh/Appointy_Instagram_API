@@ -37,26 +37,6 @@ var users []User
 // Init posts var as a slice Post struct
 var posts []Post
 
-// Get all user
-func getAllUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var people []User
-
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-	client, _ := mongo.Connect(context.TODO(), clientOptions)
-	col := client.Database("First_Database").Collection("First Collection")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	cursor, _ := col.Find(ctx, bson.M{})
-	defer cursor.Close(ctx)
-
-	for cursor.Next(ctx) {
-		var person User
-		cursor.Decode(&person)
-		people = append(people, person)
-	}
-	json.NewEncoder(w).Encode(people)
-}
-
 
 // Add new user
 func createUser(w http.ResponseWriter, r *http.Request) {
@@ -76,10 +56,28 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("InsertONE Error:", insertErr)
 		os.Exit(1)
 	}
-
 	json.NewEncoder(w).Encode(result)
 }
 
+// Get all user
+func getUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var people []User
+
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+	col := client.Database("First_Database").Collection("First Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	cursor, _ := col.Find(ctx, bson.M{})
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var person User
+		cursor.Decode(&person)
+		people = append(people, person)
+	}
+	json.NewEncoder(w).Encode(people)
+}
 
 // Get single user
 func getSingleUser(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +100,55 @@ func getSingleUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(person)
 	}
 }
+
+
+// Create Post for a user
+func createPost(w http.ResponseWriter, r *http.Request) {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+
+	w.Header().Set("Content-Type", "application/json")
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost) //ecnrypting the user password then storing it
+	user.Password = string(bs)
+	// fmt.Println(user.Password)
+	col := client.Database("First_Database").Collection("Post Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	result, insertErr := col.InsertOne(ctx, user)
+	if insertErr != nil {
+		fmt.Println("InsertONE Error:", insertErr)
+		os.Exit(1)
+	}
+
+	json.NewEncoder(w).Encode(result)
+}
+
+// Get single user
+func getPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r) // Gets params
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var person User
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+	col := client.Database("First_Database").Collection("Post Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	var people []User
+	// id := string(params["id"])
+	err := col.FindOne(ctx, User{ID: id}).Decode(&person)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+	} else {
+		people = append(people, person)
+	}
+	json.NewEncoder(w).Encode(person)
+}
+
+
+// Non MongoDB part on Hardcoded Data
 
 // Update user
 func updateUser(w http.ResponseWriter, r *http.Request) {
@@ -134,28 +181,6 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 
-// Add new post
-func createPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var post Post
-	_ = json.NewDecoder(r.Body).Decode(&post)
-	post.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
-	posts = append(posts, post)
-	json.NewEncoder(w).Encode(post)
-}
-
-// Get all posts
-func getPosts(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r) // Gets params
-	// Loop through posts and find one with the id from the params
-	for _, item := range posts {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
-		}
-	}
-	json.NewEncoder(w).Encode(&Post{})
-}
 
 // Pagination middleware is used to extract the next page id from the url query
 func Pagination(next http.Handler) http.Handler {
@@ -175,7 +200,7 @@ func Pagination(next http.Handler) http.Handler {
 	})
 }
 
-
+// Unit testing code
 func TestGetEntryByID(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/entry", nil)
