@@ -2,7 +2,7 @@
 
 # Simple GO Lang REST API
 
-> Simple RESTful API to create, read, update and delete books. No database implementation yet
+> Simple Instagram API to create, read posts using MongoDB for the database implementation
 
 ## Quick Start
 
