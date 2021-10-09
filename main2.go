@@ -60,7 +60,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get all user
-func getUser(w http.ResponseWriter, r *http.Request) {
+func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var people []User
 
@@ -249,6 +249,7 @@ func TestCreateEntry(t *testing.T) {
 	}
 }
 
+
 // Main function
 func main() {
 
@@ -268,6 +269,8 @@ func main() {
 	r.HandleFunc("/all_users", getAllUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", getSingleUser).Methods("POST")  //using post method here to pass password also in the request body for verification
 	r.HandleFunc("/users", createUser).Methods("POST")
+
+	//endpoints for harcoded js object data
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
 
@@ -277,6 +280,5 @@ func main() {
 	// Start server
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
-
 
 
