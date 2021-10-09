@@ -82,27 +82,26 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 
 
 // Get single user
-func getUser(w http.ResponseWriter, r *http.Request) {
+func getSingleUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) // Gets params
-	var user User
-	_ = json.NewDecoder(r.Body).Decode(&user)
-	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
-	// Loop through users and find one with the id from the params
-	for _, item := range users {
-		if item.ID == params["id"] {
-			err := bcrypt.CompareHashAndPassword(bs, []byte(item.Password))
-			if err != nil{
-				fmt.Println("Sorry.. Password doesn't match")
-			} else {
-				json.NewEncoder(w).Encode(item)
-				return
-			}
-		}
-	}
-	json.NewEncoder(w).Encode(&User{})
-}
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	var person User
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+	col := client.Database("First_Database").Collection("First Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
+	// id := string(params["id"])
+	err := col.FindOne(ctx, User{ID: id}).Decode(&person)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{ "message": "` + err.Error() + `" }`))
+		return
+	} else {
+		json.NewEncoder(w).Encode(person)
+	}
+}
 
 // Update user
 func updateUser(w http.ResponseWriter, r *http.Request) {
