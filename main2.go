@@ -185,7 +185,7 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 
 
 
-// Pagination middleware is used to extract the next page id from the url query
+// Pagination 
 func Pagination(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		PageID := r.URL.Query().Get(string(PageIDKey))
@@ -203,7 +203,7 @@ func Pagination(next http.Handler) http.Handler {
 	})
 }
 
-// Unit testing code
+// Unit testing
 func TestGetEntryByID(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/entry", nil)
