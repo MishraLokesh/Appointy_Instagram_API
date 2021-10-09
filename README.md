@@ -23,7 +23,7 @@ GET /all_users
 
 ```bash
 POST /users/{id}
-pass the password in req body for verification
+#pass the password in req body for verification
 ```
 
 ### Delete Book
