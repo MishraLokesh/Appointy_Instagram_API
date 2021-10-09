@@ -58,6 +58,7 @@ POST /posts/{id}
 POST /posts
 # Request sample
 # {
+#  ID: 456
 # Caption: "Hehe",
 # ImageURL: "www.image_url.com",
 # Timestamp: "123545680"
