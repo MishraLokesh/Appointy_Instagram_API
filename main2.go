@@ -2,13 +2,18 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
+	"context"
+	"os"
+	"time"
 	"log"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"fmt"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // user struct (Model)
@@ -40,16 +45,26 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 
 // Add new user
 func createUser(w http.ResponseWriter, r *http.Request) {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, _ := mongo.Connect(context.TODO(), clientOptions)
+
 	w.Header().Set("Content-Type", "application/json")
 	var user User
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	bs, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost) //ecnrypting the user password then storing it
-	user.ID = strconv.Itoa(rand.Intn(100000000)) // Mock ID - not safe
 	user.Password = string(bs)
 	// fmt.Println(user.Password)
-	users = append(users, user)
-	json.NewEncoder(w).Encode(user)
+	col := client.Database("First_Database").Collection("First Collection")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	result, insertErr := col.InsertOne(ctx, user)
+	if insertErr != nil {
+		fmt.Println("InsertONE Error:", insertErr)
+		os.Exit(1)
+	}
+
+	json.NewEncoder(w).Encode(result)
 }
+
 
 // Get single user
 func getUser(w http.ResponseWriter, r *http.Request) {
@@ -130,6 +145,7 @@ func getPosts(w http.ResponseWriter, r *http.Request) {
 
 // Main function
 func main() {
+
 	// Init router
 	r := mux.NewRouter()
 
@@ -144,7 +160,7 @@ func main() {
 
 	// Route handles & endpoints
 	r.HandleFunc("/users", getUsers).Methods("GET")
-	r.HandleFunc("/users/{id}", getUser).Methods("POST")
+	r.HandleFunc("/users/{id}", getUser).Methods("POST")  //using post method here to pass password also in the request body for verification
 	r.HandleFunc("/users", createUser).Methods("POST")
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
@@ -155,3 +171,6 @@ func main() {
 	// Start server
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
+
+
+
