@@ -50,18 +50,15 @@ POST /posts/{id}
 ```
 
 
+### Create Book
+``` bash
+POST /posts
 # Request sample
-
 # {
-
 # Name: "Lokesh",
-
 # Email: "user_One@gmail.com",
-
 # Password: "yoyo"
-
 # }
-
 ```
 
 
