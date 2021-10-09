@@ -26,7 +26,7 @@ POST /users/{id}
 #pass the password in req body for verification
 ```
 
-### Delete Book
+### Delete User
 
 ```bash
 POST api/books/{id}
