@@ -106,8 +106,8 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 func getPosts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) // Gets params
-	// Loop through users and find one with the id from the params
-	for _, item := range users {
+	// Loop through posts and find one with the id from the params
+	for _, item := range posts {
 		if item.ID == params["id"] {
 			json.NewEncoder(w).Encode(item)
 		}
@@ -126,12 +126,19 @@ func main() {
 	users = append(users, User{ID: "2", Name: "Aman", Email: "user_Two@gmail.com", Password: "oyoy"})
 	users = append(users, User{ID: "3", Name: "Samar", Email: "user_Three@gmail.com", Password: "oyyo"})
 
+	posts = append(posts, Post{ID: "3", Caption: "Samar here", ImageURL: "samar_image@gmail.com", Timestamp: "20:20"})
+	posts = append(posts, Post{ID: "3", Caption: "Samar here 2", ImageURL: "samar_image2@gmail.com", Timestamp: "08:45"})
+	posts = append(posts, Post{ID: "1", Caption: "Lokesh here", ImageURL: "lokesh_image@gmail.com", Timestamp: "08:07"})
+
 	// Route handles & endpoints
 	r.HandleFunc("/users", getUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", getUser).Methods("GET")
 	r.HandleFunc("/users", createUser).Methods("POST")
 	r.HandleFunc("/users/{id}", updateUser).Methods("PUT")
 	r.HandleFunc("/users/{id}", deleteUser).Methods("DELETE")
+
+	r.HandleFunc("/posts", createPost).Methods("POST")
+	r.HandleFunc("/posts/{id}", getPosts).Methods("GET")
 
 	// Start server
 	log.Fatal(http.ListenAndServe(":8080", r))
